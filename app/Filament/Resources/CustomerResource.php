@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CompanyResource\Pages;
-use App\Filament\Resources\CompanyResource\RelationManagers;
-use App\Models\Company;
+use App\Filament\Resources\CustomerResource\Pages;
+use App\Filament\Resources\CustomerResource\RelationManagers;
+use App\Models\Customer;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
@@ -18,35 +18,48 @@ use Filament\Infolists;
 use Filament\Infolists\Components\Section as ComponentsSection;
 use Filament\Infolists\Infolist;
 
-class CompanyResource extends Resource
+class CustomerResource extends Resource
 {
-    protected static ?string $model = Company::class;
+    protected static ?string $model = Customer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make('Basic Information')->schema([
-                    Forms\Components\TextInput::make('business_name')
+                    
+                    Forms\Components\TextInput::make('first_name')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('tradename')
+                    Forms\Components\TextInput::make('last_name')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('rnc')
-                        ->type('number')
-                        ->minLength(9),
-                    Forms\Components\Toggle::make('is_active')
-                        ->required(),
+                    Forms\Components\TextInput::make('email')
+                        ->email()
+                        ->maxLength(255),
+                    // Forms\Components\TextInput::make('password')
+                    //     ->password()
+                    //     ->required()
+                    //     ->maxLength(255)
+                    //     ->default('$2y$12$vKMnsFvBYTDRmJVUf.w5lOMMOYYmBunhbbOjmzXuAEfqKGY.iPXwi'),
+                    Forms\Components\Select::make('company_id')
+                        ->relationship(name: 'company', titleAttribute: 'tradename')
+                        ->searchable(['name', 'email'])
+                        ->preload()
+                        ->required()
+                ])->aside(),
+                
+                Section::make('Image Profile')->schema([
+                    Forms\Components\FileUpload::make('avatar_url')->label(false),
+                ])->aside(),
+                
+                Section::make('Status')->schema([
+                    Forms\Components\Toggle::make('is_active')->required(),
                 ])->aside(),
 
-                Section::make('Company Logo')->schema([
-                    Forms\Components\FileUpload::make('logo_url')->label(false)
-                ])->aside(),
-
-                Section::make('Additional Phones')->schema([
+                Section::make('Add Phone Number')->schema([
                     Repeater::make('Phones')
                         ->label(false)
                         ->relationship('phones')
@@ -57,7 +70,7 @@ class CompanyResource extends Resource
                                 ->placeholder('(###) ###-####'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add phone')
+                        ->addActionLabel('Add phone number')
                         ->collapsible(),
                 ])->aside(),
                 
@@ -74,7 +87,7 @@ class CompanyResource extends Resource
                         ->addActionLabel('Add mail')
                         ->collapsible()
                 ])->aside(),
-
+                
             ]);
     }
 
@@ -82,32 +95,34 @@ class CompanyResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('logo_url')
-                    ->height(40)
-                    ->label(__('Logo'))
-                    ->defaultImageUrl(url('/images/logos/placeholder.jpg')),
-                Tables\Columns\TextColumn::make('business_name')
+                Tables\Columns\ImageColumn::make('avatar_url')
+                    ->label(__('Avatar'))
+                    ->defaultImageUrl(url('/images/avatars/placeholder.png'))
+                    ->circular()
+                    ->height(30),
+                Tables\Columns\TextColumn::make('company.tradename')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tradename')
+                Tables\Columns\TextColumn::make('first_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('customers_count')->counts('customers'),
-                Tables\Columns\TextColumn::make('rnc')
+                Tables\Columns\TextColumn::make('last_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')->label('Primary Email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phones.phone')
-                    ->label('Additional Phones')
+                    ->label('Phones')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
                     ->placeholder(__('No Available'))
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('mails.mail')
-                    ->label('Additional Emails')
+                    ->label('Emails')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
                     ->placeholder(__('No Available'))
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\ToggleColumn::make('is_active'),
+                Tables\Columns\ToggleColumn::make('is_active')->label('Status'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -143,19 +158,20 @@ class CompanyResource extends Resource
         return $infolist
             ->schema([
                 ComponentsSection::make('Basic Information')->schema([
-                    Infolists\Components\TextEntry::make('business_name'),
-                    Infolists\Components\TextEntry::make('tradename'),
-                    Infolists\Components\TextEntry::make('rnc'),
+                    Infolists\Components\TextEntry::make('first_name'),
+                    Infolists\Components\TextEntry::make('last_name'),
+                    Infolists\Components\TextEntry::make('email'),
+                    Infolists\Components\TextEntry::make('company.tradename'),
                     Infolists\Components\IconEntry::make('is_active')->boolean(),
                 ])->columns([
                     'sm' => 1,
                     'md' => 2,
                 ])->aside(),
-                ComponentsSection::make('Company Logo')->schema([
-                    Infolists\Components\ImageEntry::make('logo_url')
-                        ->defaultImageUrl(url('/images/logos/placeholder.jpg'))
-                        ->height(100)
+                ComponentsSection::make('Image Profile')->schema([
+                    Infolists\Components\ImageEntry::make('avatar_url')
                         ->label(false)
+                        ->defaultImageUrl(url('/images/avatars/placeholder.png'))
+                        ->circular()
                 ])->aside(),
                 ComponentsSection::make('Additional Emails')->schema([
                     Infolists\Components\TextEntry::make('mails.mail')
@@ -184,10 +200,10 @@ class CompanyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCompanies::route('/'),
-            'create' => Pages\CreateCompany::route('/create'),
-            'view' => Pages\ViewCompany::route('/{record}'),
-            'edit' => Pages\EditCompany::route('/{record}/edit'),
+            'index' => Pages\ListCustomers::route('/'),
+            'create' => Pages\CreateCustomer::route('/create'),
+            'view' => Pages\ViewCustomer::route('/{record}'),
+            'edit' => Pages\EditCustomer::route('/{record}/edit'),
         ];
     }
 

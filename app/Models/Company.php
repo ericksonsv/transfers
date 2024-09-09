@@ -35,4 +35,12 @@ class Company extends Model
     {
         return $this->hasMany(CompanyMail::class);
     }
+
+    /**
+     * Get the customers for the company.
+     */
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
 }
