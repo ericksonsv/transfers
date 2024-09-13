@@ -15,6 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::table('settings')->insert([
+            'name' => 'Transporte Turístico y Empresarial Edwin',
+            'rnc' => '131285742',
+            'address' => 'KM 17 Marginal de las Américas, Urbanización Prado del Este, Av. Los palmeros #23, SDE',
+            'office_phone' => '8094223340',
+            'mobile_phone' => '8298866699',
+            'mail' => 'info@transporteturisticoedwin.com',
+            'website' => 'https://transporteturisticoedwin.com/',
+            'facebook' => 'https://www.facebook.com/Transporte-Tur%C3%ADstico-Edwin-SRL-927196780676784',
+            'instagram' => 'https://www.instagram.com/transporteturisticoedwin/',
+        ]);
+
         DB::table('users')->insert([
             'name' => 'Erickson Suero',
             'email' => 'ericksuero@gmail.com',
