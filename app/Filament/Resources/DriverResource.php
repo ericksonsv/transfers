@@ -2,27 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DriverResource\Pages;
-use App\Filament\Resources\DriverResource\RelationManagers;
-use App\Models\Driver;
 use Filament\Forms;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\Driver;
 use Filament\Infolists;
-use Filament\Infolists\Components\Section as ComponentsSection;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\DriverResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\DriverResource\RelationManagers;
+use Filament\Infolists\Components\Section as ComponentsSection;
 
 class DriverResource extends Resource
 {
     protected static ?string $model = Driver::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     public static function form(Form $form): Form
     {
@@ -39,6 +41,22 @@ class DriverResource extends Resource
                     Forms\Components\TextInput::make('email')
                         ->email()
                         ->maxLength(255),
+                    Forms\Components\TextInput::make('file')->label('Ficha')
+                        ->maxLength(5)
+                        ->mask('F-999')
+                        ->placeholder('F-###')
+                        ->live()
+                        ->autocomplete('off') 
+                        ->datalist(function (?string $state) {
+                            $options = [];
+                            if($state != null and Str::length($state) >= 1) {
+                                $options = DB::table('bus_technical_sheets')->where('technical_sheet','like','%'.$state.'%')
+                                    ->get()
+                                    ->pluck('technical_sheet')
+                                    ->toarray();
+                            }
+                            return $options; 
+                        }),
                     // Forms\Components\TextInput::make('password')
                     //     ->password()
                     //     ->required()
@@ -100,6 +118,10 @@ class DriverResource extends Resource
                 Tables\Columns\TextColumn::make('last_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('file')
+                    ->label('Ficha')
+                    ->placeholder(__('N/A'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phones.phone')
                     ->label('Additional Phones')

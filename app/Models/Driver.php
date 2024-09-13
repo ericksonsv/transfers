@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -30,6 +31,7 @@ class Driver extends Authenticatable
         'avatar_url',
         'email',
         'password',
+        'file',
         'is_active',
     ];
 
@@ -56,6 +58,11 @@ class Driver extends Authenticatable
         ];
     }
 
+    protected function getFullNameAttribute(): string
+    {
+        return $this->attributes['first_name'].' '.$this->attributes['last_name'];
+    }
+
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url;
@@ -75,5 +82,10 @@ class Driver extends Authenticatable
     public function mails(): HasMany
     {
         return $this->hasMany(DriverMail::class);
+    }
+
+    public function orderServices(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class);
     }
 }

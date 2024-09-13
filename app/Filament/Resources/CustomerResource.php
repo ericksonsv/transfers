@@ -2,21 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CustomerResource\Pages;
-use App\Filament\Resources\CustomerResource\RelationManagers;
-use App\Models\Customer;
 use Filament\Forms;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Get;
 use Filament\Infolists;
-use Filament\Infolists\Components\Section as ComponentsSection;
+use App\Models\Customer;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Illuminate\Support\Collection;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\CustomerResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\CustomerResource\RelationManagers;
+use App\Models\Company;
+use Filament\Infolists\Components\Section as ComponentsSection;
 
 class CustomerResource extends Resource
 {
@@ -45,8 +48,13 @@ class CustomerResource extends Resource
                     //     ->maxLength(255)
                     //     ->default('$2y$12$vKMnsFvBYTDRmJVUf.w5lOMMOYYmBunhbbOjmzXuAEfqKGY.iPXwi'),
                     Forms\Components\Select::make('company_id')
-                        ->relationship(name: 'company', titleAttribute: 'tradename')
-                        ->searchable(['name', 'email'])
+                        ->options(
+                            fn (Get $get): Collection => Company::query()
+                            ->where('is_active', true)
+                            ->pluck('tradename', 'id')
+                        )
+                        ->label('Company')
+                        ->searchable()
                         ->preload()
                         ->required()
                 ])->aside(),
