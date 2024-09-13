@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('password')->default(Hash::make('clave'));
             $table->string('avatar_url', 2048)->nullable();
+            $table->string('file')->nullable();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->softDeletes();
