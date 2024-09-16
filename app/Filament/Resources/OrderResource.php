@@ -41,6 +41,8 @@ use Filament\Tables\Grouping\Group as GroupingGroup;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Tables\Columns\DriversColumn;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Tables\Actions\BulkAction;
+use Livewire\Component;
 
 class OrderResource extends Resource
 {
@@ -200,7 +202,7 @@ class OrderResource extends Resource
                 DriversColumn::make('drivers')->searchable(),
                 TextColumn::make('currency')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('note')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('note')->html()->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('serviceStatus.status')
                     ->label('Status')
                     ->badge()
@@ -210,44 +212,18 @@ class OrderResource extends Resource
                         'EN PROCESO' => 'info',
                         'PENDIENTE' => 'warning',
                         default => 'primary'
-                    })
+                    }),
             ])
             ->groups([
                 GroupingGroup::make('order.id')
                     ->label('Order #')
                     ->getDescriptionFromRecordUsing(
-                        fn (Service $record): string
-                        => 'Company: '. $record->order->company->tradename. ' / Customer: '. $record->order->customer->full_name
+                        fn (Service $record): string => $record->order->company->tradename.' - '.$record->order->customer->full_name
                     )
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => $query->orderBy('id', $direction))
                     ->collapsible()
             ])
             ->defaultGroup('order.id')
-            // ->columns([
-            //     Tables\Columns\TextColumn::make('company.tradename')
-            //         ->searchable()
-            //         ->sortable(),
-            //     Tables\Columns\TextColumn::make('customer.full_name')
-            //         ->searchable()
-            //         ->sortable(),
-            //     Tables\Columns\TextColumn::make('user.name')
-            //         ->searchable()
-            //         ->sortable()
-            //         ->label('Creado por'),
-            //     // ServicesColumn::make('services'),
-            //     Tables\Columns\TextColumn::make('created_at')
-            //             ->dateTime()
-            //             ->sortable()
-            //             ->searchable()
-            //             ->toggleable(),
-            //     Tables\Columns\TextColumn::make('deleted_at')
-            //         ->dateTime()
-            //         ->sortable()
-            //         ->toggleable(isToggledHiddenByDefault: true),
-            //     Tables\Columns\TextColumn::make('updated_at')
-            //         ->dateTime()
-            //         ->sortable()
-            //         ->toggleable(isToggledHiddenByDefault: true),
-            // ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
@@ -261,22 +237,46 @@ class OrderResource extends Resource
                 Action::make('print')
                     ->icon('heroicon-o-printer')
                     ->iconButton()
+                    ->tooltip(__('Print Service'))
                     ->color('info')
-                    ->action(fn (Service $record) => dd($record)),
+                    ->url(fn (Service $record): string => route('admin.services.print-service', $record))
+                    ->openUrlInNewTab(),
                 Action::make('print_individual_invoice')
                     ->icon('heroicon-o-document')
-                    ->iconButton(),
-                Action::make('print_all_invoices')
-                    ->icon('heroicon-o-document-duplicate')
                     ->iconButton()
+                    ->tooltip(__('Print Invoice'))
+                    ->color('info')
+                    ->url(fn (Service $record): string => route('admin.services.print-invoice', $record))
+                    ->openUrlInNewTab()
+                // Action::make('print_all_invoices')
+                //     ->icon('heroicon-o-document-duplicate')
+                //     ->iconButton()
+                //     ->tooltip(__('Print All Invoice'))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
+                    BulkAction::make('Print All Invoices')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->action(
+                            fn (Collection $records) => redirect()->route('admin.orders.print-all-invoices', $records->first()->order->id)
+                        )
+                        ->deselectRecordsAfterCompletion()
                 ]),
-            ]);
+            ])->selectCurrentPageOnly()
+            ->checkIfRecordIsSelectableUsing(
+                function (Service $record): bool {
+                    // get the order instance
+                    $order = $record->order;
+                    // check if order has more than one serve
+                    if ($order->services()->exists() && $order->services()->count() > 1) {
+                        return true;
+                    }
+                    return false;
+                }
+            );
     }
 
     public static function getRelations(): array

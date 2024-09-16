@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('business_name')->unique();
             $table->string('tradename')->unique();
             $table->string('logo_url')->nullable();
-            $table->string('rnc')->nullable();
+            $table->string('rnc')->unique()->nullable();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();
