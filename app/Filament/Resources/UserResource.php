@@ -44,6 +44,12 @@ class UserResource extends Resource
                     Forms\Components\Toggle::make('is_active')
                             ->required(),
                 ])->aside()->columns(['sm' => 1,'lg' => 2]),
+                Section::make('Role')->schema([
+                    Forms\Components\Select::make('roles')
+                        ->relationship('roles', 'name')
+                        ->preload()
+                        ->searchable()
+                ])->aside(),
                 Section::make('Security Information')->schema([
                     Forms\Components\TextInput::make('password')
                         ->password()
@@ -79,6 +85,10 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label(__('Role'))
+                    ->badge()
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active'),
                 Tables\Columns\TextColumn::make('deleted_at')

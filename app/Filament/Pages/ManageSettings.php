@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -19,6 +20,7 @@ use Filament\Support\Exceptions\Halt;
 class ManageSettings extends Page implements HasForms
 {
     use InteractsWithForms;
+    use HasPageShield;
 
     public ?array $data = [];
 

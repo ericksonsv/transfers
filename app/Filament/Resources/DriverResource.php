@@ -17,7 +17,6 @@ use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\DriverResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\DriverResource\RelationManagers;
 use Filament\Infolists\Components\Section as ComponentsSection;
 
 class DriverResource extends Resource
