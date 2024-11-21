@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,6 +24,7 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use SoftDeletes;
     use HasRoles;
+    use HasPanelShield;
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +35,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active'
     ];
 
     /**

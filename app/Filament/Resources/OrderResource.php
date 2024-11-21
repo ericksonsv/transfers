@@ -189,6 +189,16 @@ class OrderResource extends Resource
     {
         return $table
             ->query(Service::query())
+            ->modifyQueryUsing(function(Builder $query) {
+                $data = $query->find(2)->with([
+                    'drivers' => ['phones','mails'],
+                    'order' => [
+                        'company' => ['phones','mails'],
+                        'customer' => ['phones','mails']
+                    ]
+                ]);
+                return $data;
+            })
             ->columns([
                 TextColumn::make('id'),
                 TextColumn::make('pickup_date')->searchable(),
@@ -247,7 +257,11 @@ class OrderResource extends Resource
                     ->tooltip(__('Print Invoice'))
                     ->color('info')
                     ->url(fn (Service $record): string => route('admin.services.print-invoice', $record))
-                    ->openUrlInNewTab()
+                    ->openUrlInNewTab(),
+                Action::make('logs')
+                    ->url(fn ($record) => OrderResource::getUrl('activities', ['record' => $record]))
+                    ->icon('heroicon-o-clock')
+                    ->color('primary')
                 // Action::make('print_all_invoices')
                 //     ->icon('heroicon-o-document-duplicate')
                 //     ->iconButton()
@@ -293,6 +307,7 @@ class OrderResource extends Resource
             'create' => Pages\CreateOrder::route('/create'),
             'view' => Pages\ViewOrder::route('/{record}'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
+            'activities' => Pages\OrderActivity::route('/{record}/activities'),
         ];
     }
 

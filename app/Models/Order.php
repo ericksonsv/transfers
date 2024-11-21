@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Order extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -51,5 +54,31 @@ class Order extends Model
     public function services(): HasMany
     {
         return $this->hasMany(Service::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly([
+            'company.tradename',
+            'customer.first_name',
+            'customer.last_name',
+            'services',
+            // 'services.user_id',
+            // 'services.order_id',
+            // 'services.client',
+            // 'services.pickup_date',
+            // 'services.pickup_time',
+            // 'services.pickup_place',
+            // 'services.dropoff_place',
+            // 'services.flight_number',
+            // 'services.flight_time',
+            // 'services.passengers',
+            // 'services.amount',
+            // 'services.service_currency_id',
+            // 'services.service_type_id',
+            // 'services.service_status_id',
+            // 'services.note',
+        ]);
     }
 }

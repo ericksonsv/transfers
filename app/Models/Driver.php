@@ -12,6 +12,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Driver extends Authenticatable
 {
@@ -19,6 +21,7 @@ class Driver extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use SoftDeletes;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -87,5 +90,20 @@ class Driver extends Authenticatable
     public function orderServices(): BelongsToMany
     {
         return $this->belongsToMany(Service::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly([
+            'first_name',
+            'last_name',
+            'avatar_url',
+            'email',
+            'file',
+            'is_active',
+            'phones',
+            'mails'
+        ]);
     }
 }
