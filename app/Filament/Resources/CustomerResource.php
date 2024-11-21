@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\Company;
 use Filament\Infolists\Components\Section as ComponentsSection;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerResource extends Resource
 {
@@ -151,6 +153,11 @@ class CustomerResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Action::make('logs')
+                    ->url(fn ($record) => CustomerResource::getUrl('activities', ['record' => $record]))
+                    ->icon('heroicon-o-clock')
+                    ->color('primary')
+                    ->visible(Auth::user()->can('log_customer'))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -210,6 +217,7 @@ class CustomerResource extends Resource
         return [
             'index' => Pages\ListCustomers::route('/'),
             'create' => Pages\CreateCustomer::route('/create'),
+            'activities' => Pages\CustomerActivities::route('/{record}/activities'),
             'view' => Pages\ViewCustomer::route('/{record}'),
             'edit' => Pages\EditCustomer::route('/{record}/edit'),
         ];

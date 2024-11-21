@@ -14,6 +14,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Customer extends Authenticatable
 {
@@ -21,6 +23,7 @@ class Customer extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use SoftDeletes;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -60,10 +63,10 @@ class Customer extends Authenticatable
         ];
     }
 
-    public function getFilamentAvatarUrl(): ?string
-    {
-        return $this->avatar_url;
-    }
+    // public function getFilamentAvatarUrl(): ?string
+    // {
+    //     return $this->avatar_url;
+    // }
 
     /**
      * Get the company for the customer.
@@ -100,5 +103,19 @@ class Customer extends Authenticatable
     protected function getFullNameAttribute(): string
     {
         return $this->attributes['first_name'].' '.$this->attributes['last_name'];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly([
+            'company_id',
+            'first_name',
+            'last_name',
+            'avatar_url',
+            'email',
+            'company.tradename',
+            'is_active',
+        ]);
     }
 }

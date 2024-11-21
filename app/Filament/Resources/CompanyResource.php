@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists;
 use Filament\Infolists\Components\Section as ComponentsSection;
 use Filament\Infolists\Infolist;
+use Filament\Tables\Actions\Action;
 
 class CompanyResource extends Resource
 {
@@ -128,6 +129,10 @@ class CompanyResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Action::make('logs')
+                    ->url(fn ($record) => CompanyResource::getUrl('activities', ['record' => $record]))
+                    ->icon('heroicon-o-clock')
+                    ->color('primary')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -186,6 +191,7 @@ class CompanyResource extends Resource
         return [
             'index' => Pages\ListCompanies::route('/'),
             'create' => Pages\CreateCompany::route('/create'),
+            'activities' => Pages\CompanyActivities::route('/{record}/activities'),
             'view' => Pages\ViewCompany::route('/{record}'),
             'edit' => Pages\EditCompany::route('/{record}/edit'),
         ];

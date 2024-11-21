@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Database\Eloquent\Builder;
@@ -157,6 +158,10 @@ class DriverResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Action::make('logs')
+                    ->url(fn ($record) => DriverResource::getUrl('activities', ['record' => $record]))
+                    ->icon('heroicon-o-clock')
+                    ->color('primary')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -213,6 +218,7 @@ class DriverResource extends Resource
         return [
             'index' => Pages\ListDrivers::route('/'),
             'create' => Pages\CreateDriver::route('/create'),
+            'activities' => Pages\DriverActivities::route('/{record}/activities'),
             'view' => Pages\ViewDriver::route('/{record}'),
             'edit' => Pages\EditDriver::route('/{record}/edit'),
         ];
