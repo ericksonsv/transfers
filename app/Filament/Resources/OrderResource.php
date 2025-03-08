@@ -108,7 +108,7 @@ class OrderResource extends Resource
                             TextInput::make('pickup_place')
                                 ->required()
                                 ->live()
-                                ->autocomplete('off') 
+                                ->autocomplete('off')
                                 ->datalist(function (?string $state) {
                                     $options =[];
                                     if($state != null and Str::length($state) >= 2) {
@@ -117,12 +117,12 @@ class OrderResource extends Resource
                                             ->pluck('destiny')
                                             ->toarray();
                                     }
-                                    return $options; 
+                                    return $options;
                                 }),
                             TextInput::make('dropoff_place')
                                 ->required()
                                 ->live()
-                                ->autocomplete('off') 
+                                ->autocomplete('off')
                                 ->datalist(function (?string $state) {
                                     $options =[];
                                     if($state != null and Str::length($state) >= 2) {
@@ -131,7 +131,7 @@ class OrderResource extends Resource
                                             ->pluck('destiny')
                                             ->toarray();
                                     }
-                                    return $options; 
+                                    return $options;
                                 }),
                             TextInput::make('flight_number'),
                             TimePicker::make('flight_time')->native(true)->prefixIcon('heroicon-m-clock'),
@@ -190,7 +190,7 @@ class OrderResource extends Resource
         return $table
             ->query(Service::query())
             ->modifyQueryUsing(function(Builder $query) {
-                $data = $query->find(2)->with([
+                $data = $query->with([
                     'drivers' => ['phones','mails'],
                     'order' => [
                         'company' => ['phones','mails'],
