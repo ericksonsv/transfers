@@ -21,6 +21,8 @@ class ServiceStatusResource extends Resource
 
     protected static ?string $navigationGroup = 'System';
 
+    protected static ?string $navigationLabel = 'Estados de Servicio';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form

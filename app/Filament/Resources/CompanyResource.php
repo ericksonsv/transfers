@@ -25,29 +25,34 @@ class CompanyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
+    protected static ?string $navigationLabel = 'Compañías';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Basic Information')->schema([
+                Section::make('Información Básica')->schema([
                     Forms\Components\TextInput::make('business_name')
                         ->required()
+                        ->label('Razón Social')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('tradename')
                         ->required()
+                        ->label('Nombre Comercial')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('rnc')
                         ->type('number')
                         ->minLength(9),
                     Forms\Components\Toggle::make('is_active')
+                        ->label('Estado')
                         ->required(),
                 ])->aside(),
 
-                Section::make('Company Logo')->schema([
+                Section::make('Logo Compañia')->schema([
                     Forms\Components\FileUpload::make('logo_url')->label(false)
                 ])->aside(),
 
-                Section::make('Additional Phones')->schema([
+                Section::make('Teléfonos Adicionales')->schema([
                     Repeater::make('Phones')
                         ->label(false)
                         ->relationship('phones')
@@ -58,11 +63,12 @@ class CompanyResource extends Resource
                                 ->placeholder('(###) ###-####'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add phone')
+                        ->defaultItems(0)
+                        ->addActionLabel('Agregar teléfono')
                         ->collapsible(),
                 ])->aside(),
-                
-                Section::make('Additionals Emails')->schema([
+
+                Section::make('Correos Adicionales')->schema([
                     Repeater::make('Mails')
                         ->label(false)
                         ->relationship('mails')
@@ -72,7 +78,8 @@ class CompanyResource extends Resource
                                 ->suffixIcon('heroicon-m-envelope'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add mail')
+                        ->defaultItems(0)
+                        ->addActionLabel('Agregar correo')
                         ->collapsible()
                 ])->aside(),
 
@@ -88,27 +95,31 @@ class CompanyResource extends Resource
                     ->label(__('Logo'))
                     ->defaultImageUrl(url('/images/logos/placeholder.jpg')),
                 Tables\Columns\TextColumn::make('business_name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tradename')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('customers_count')->counts('customers'),
+                    ->searchable()
+                    ->label('Nombre Comercial'),
+                // Tables\Columns\TextColumn::make('tradename')
+                //     ->searchable()
+                //     ->label('Nombre Comercial'),
+                Tables\Columns\TextColumn::make('customers_count')
+                    ->counts('customers')
+                    ->label('Total Clientes'),
                 Tables\Columns\TextColumn::make('rnc')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phones.phone')
-                    ->label('Additional Phones')
+                    ->label('Teléfonos Adiccionales')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
-                    ->placeholder(__('No Available'))
+                    ->placeholder(__('No Disponible'))
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('mails.mail')
-                    ->label('Additional Emails')
+                    ->label('Correos Adiccionales')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
-                    ->placeholder(__('No Available'))
+                    ->placeholder(__('No Disponible'))
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\ToggleColumn::make('is_active'),
+                Tables\Columns\ToggleColumn::make('is_active')->label('Estado'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -126,13 +137,14 @@ class CompanyResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make()->label('Ver')->button(),
+                Tables\Actions\EditAction::make()->label('Editar')->button(),
+                Tables\Actions\DeleteAction::make()->label('Eliminar')->button(),
                 Action::make('logs')
                     ->url(fn ($record) => CompanyResource::getUrl('activities', ['record' => $record]))
                     ->icon('heroicon-o-clock')
-                    ->color('primary')
+                    ->button()
+                    ->color('info')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

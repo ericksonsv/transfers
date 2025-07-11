@@ -26,27 +26,32 @@ class DriverResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
+    protected static ?string $navigationLabel = 'Choferes';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Basic Information')->schema([
-                    
+                Section::make('Información Básica')->schema([
+
                     Forms\Components\TextInput::make('first_name')
                         ->required()
+                        ->label('Nombre')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('last_name')
                         ->required()
+                        ->label('Apellido')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('email')
                         ->email()
+                        ->label('Correo')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('file')->label('Ficha')
                         ->maxLength(5)
                         ->mask('F-999')
                         ->placeholder('F-###')
                         ->live()
-                        ->autocomplete('off') 
+                        ->autocomplete('off')
                         ->datalist(function (?string $state) {
                             $options = [];
                             if($state != null and Str::length($state) >= 1) {
@@ -55,7 +60,7 @@ class DriverResource extends Resource
                                     ->pluck('technical_sheet')
                                     ->toarray();
                             }
-                            return $options; 
+                            return $options;
                         }),
                     // Forms\Components\TextInput::make('password')
                     //     ->password()
@@ -63,16 +68,16 @@ class DriverResource extends Resource
                     //     ->maxLength(255)
                     //     ->default('$2y$12$vKMnsFvBYTDRmJVUf.w5lOMMOYYmBunhbbOjmzXuAEfqKGY.iPXwi'),
                 ])->aside(),
-                
-                Section::make('Image Profile')->schema([
+
+                Section::make('Image de Perfil')->schema([
                     Forms\Components\FileUpload::make('avatar_url')->label(false),
                 ])->aside(),
-                
-                Section::make('Status')->schema([
-                    Forms\Components\Toggle::make('is_active')->required(),
+
+                Section::make('Estado')->schema([
+                    Forms\Components\Toggle::make('is_active')->required()->label('Activo'),
                 ])->aside(),
 
-                Section::make('Add Phone Number')->schema([
+                Section::make('Agregar Teléfono')->schema([
                     Repeater::make('Phones')
                         ->label(false)
                         ->relationship('phones')
@@ -83,11 +88,12 @@ class DriverResource extends Resource
                                 ->placeholder('(###) ###-####'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add phone number')
+                        ->defaultItems(0)
+                        ->addActionLabel('Agregar')
                         ->collapsible(),
                 ])->aside(),
-                
-                Section::make('Additionals Emails')->schema([
+
+                Section::make('Correos Adiccionales')->schema([
                     Repeater::make('Mails')
                         ->label(false)
                         ->relationship('mails')
@@ -97,10 +103,11 @@ class DriverResource extends Resource
                                 ->suffixIcon('heroicon-m-envelope'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add mail')
+                        ->defaultItems(0)
+                        ->addActionLabel('Agregar')
                         ->collapsible()
                 ])->aside(),
-                
+
             ]);
     }
 
@@ -114,30 +121,36 @@ class DriverResource extends Resource
                     ->circular()
                     ->height(30),
                 Tables\Columns\TextColumn::make('first_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Nombre'),
                 Tables\Columns\TextColumn::make('last_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Apellido'),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder(__('No Disponible'))
+                    ->label('Correo'),
                 Tables\Columns\TextColumn::make('file')
                     ->label('Ficha')
                     ->placeholder(__('N/A'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phones.phone')
-                    ->label('Additional Phones')
+                    ->label('Teléfonos Adicionales')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
-                    ->placeholder(__('No Available'))
+                    ->placeholder(__('No Disponible'))
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('mails.mail')
-                    ->label('Additional Emails')
+                    ->label('Correos Adicionales')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
-                    ->placeholder(__('No Available'))
+                    ->placeholder(__('No Disponible'))
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\ToggleColumn::make('is_active'),
+                Tables\Columns\ToggleColumn::make('is_active')->label('Activo')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

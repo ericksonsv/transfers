@@ -21,6 +21,8 @@ class ServiceTypeResource extends Resource
 
     protected static ?string $navigationGroup = 'System';
 
+    protected static ?string $navigationLabel = 'Tipos de Servicio';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form

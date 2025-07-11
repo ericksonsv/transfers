@@ -29,20 +29,25 @@ class CustomerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
+    protected static ?string $navigationLabel = 'Clientes';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Basic Information')->schema([
-                    
+                Section::make('Información Básica')->schema([
+
                     Forms\Components\TextInput::make('first_name')
                         ->required()
+                        ->label('Nombre')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('last_name')
                         ->required()
+                        ->label('Apellido')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('email')
                         ->email()
+                        ->label('Correo')
                         ->maxLength(255),
                     // Forms\Components\TextInput::make('password')
                     //     ->password()
@@ -55,21 +60,21 @@ class CustomerResource extends Resource
                             ->where('is_active', true)
                             ->pluck('tradename', 'id')
                         )
-                        ->label('Company')
+                        ->label('Compañía')
                         ->searchable()
                         ->preload()
                         ->required()
                 ])->aside(),
-                
-                Section::make('Image Profile')->schema([
+
+                Section::make('Image de Perfil')->schema([
                     Forms\Components\FileUpload::make('avatar_url')->label(false),
                 ])->aside(),
-                
-                Section::make('Status')->schema([
-                    Forms\Components\Toggle::make('is_active')->required(),
+
+                Section::make('Estado')->schema([
+                    Forms\Components\Toggle::make('is_active')->required()->label('Activo'),
                 ])->aside(),
 
-                Section::make('Add Phone Number')->schema([
+                Section::make('Agregrar Teléfono')->schema([
                     Repeater::make('Phones')
                         ->label(false)
                         ->relationship('phones')
@@ -80,11 +85,12 @@ class CustomerResource extends Resource
                                 ->placeholder('(###) ###-####'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add phone number')
+                        ->defaultItems(0)
+                        ->addActionLabel('Agregar')
                         ->collapsible(),
                 ])->aside(),
-                
-                Section::make('Additionals Emails')->schema([
+
+                Section::make('Correos Adicionales')->schema([
                     Repeater::make('Mails')
                         ->label(false)
                         ->relationship('mails')
@@ -94,10 +100,11 @@ class CustomerResource extends Resource
                                 ->suffixIcon('heroicon-m-envelope'),
                         )
                         ->maxItems(3)
-                        ->addActionLabel('Add mail')
+                        ->defaultItems(0)
+                        ->addActionLabel('Agregar')
                         ->collapsible()
                 ])->aside(),
-                
+
             ]);
     }
 
@@ -111,28 +118,32 @@ class CustomerResource extends Resource
                     ->circular()
                     ->height(30),
                 Tables\Columns\TextColumn::make('company.tradename')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Compañía'),
                 Tables\Columns\TextColumn::make('first_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Nombre'),
                 Tables\Columns\TextColumn::make('last_name')
+                    ->label('Apellido')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')->label('Primary Email')
+                    ->label('Correo Primario')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phones.phone')
-                    ->label('Phones')
+                    ->label('Telefonos')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
                     ->placeholder(__('No Available'))
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('mails.mail')
-                    ->label('Emails')
+                    ->label('Correos')
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->searchable()
-                    ->placeholder(__('No Available'))
+                    ->placeholder(__('No Disponible'))
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\ToggleColumn::make('is_active')->label('Status'),
+                Tables\Columns\ToggleColumn::make('is_active')->label('Estado'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

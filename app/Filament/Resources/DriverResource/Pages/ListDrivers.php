@@ -10,10 +10,12 @@ class ListDrivers extends ListRecords
 {
     protected static string $resource = DriverResource::class;
 
+    protected static ?string $title = 'Listado de Choferes';
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Crear Chofer'),
         ];
     }
 }

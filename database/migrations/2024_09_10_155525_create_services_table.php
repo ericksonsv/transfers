@@ -21,10 +21,10 @@ return new class extends Migration
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->foreignId('service_currency_id')->nullabel()->constrained();
-            $table->foreignId('service_type_id')->nullabel()->constrained();
-            $table->foreignId('service_status_id')->nullable()->constrained();
-            $table->string('client');
+            $table->unsignedInteger('service_currency_id')->nullable();
+            $table->unsignedInteger('service_type_id')->nullable();
+            $table->unsignedInteger('service_status_id')->nullable();
+            $table->string('client')->nullable();
             $table->date('pickup_date')->nullable();
             $table->time('pickup_time')->nullable();
             $table->string('pickup_place')->nullable();
@@ -33,6 +33,7 @@ return new class extends Migration
             $table->time('flight_time')->nullable();
             $table->unsignedInteger('passengers')->nullable();
             $table->decimal('amount',8,2)->nullable();
+            $table->text('shiftz')->nullable();
             $table->text('note')->nullable();
             $table->softDeletes();
             $table->timestamps();
