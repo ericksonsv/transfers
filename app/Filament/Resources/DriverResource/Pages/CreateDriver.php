@@ -10,6 +10,8 @@ class CreateDriver extends CreateRecord
 {
     protected static string $resource = DriverResource::class;
 
+    protected static ?string $title = 'Crear Chofer';
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

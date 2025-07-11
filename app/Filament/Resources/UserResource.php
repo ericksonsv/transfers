@@ -28,6 +28,8 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $navigationLabel = 'Usuarios';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -46,7 +48,8 @@ class UserResource extends Resource
                 ])->aside()->columns(['sm' => 1,'lg' => 2]),
                 Section::make('Role')->schema([
                     Forms\Components\Select::make('roles')
-                        ->relationship('roles', 'name')
+                        ->relationship('roles', 'name', modifyQueryUsing: fn(Builder $query): Builder => $query->whereNotIn('name', ['super_admin']))
+                        ->required()
                         ->preload()
                         ->searchable()
                 ])->aside(),

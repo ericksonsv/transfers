@@ -21,6 +21,8 @@ class ServiceCurrencyResource extends Resource
 
     protected static ?string $navigationGroup = 'System';
 
+    protected static ?string $navigationLabel = 'Monedas de Servicio';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

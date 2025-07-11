@@ -21,6 +21,8 @@ class BusTechnicalSheetResource extends Resource
 
     protected static ?string $navigationGroup = 'System';
 
+    protected static ?string $navigationLabel = 'Fichas Técnicas';
+
     protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form

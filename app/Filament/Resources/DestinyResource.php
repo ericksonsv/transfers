@@ -20,7 +20,9 @@ class DestinyResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-map';
 
     protected static ?string $navigationGroup = 'System';
-    
+
+    protected static ?string $navigationLabel = 'Destinos';
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form

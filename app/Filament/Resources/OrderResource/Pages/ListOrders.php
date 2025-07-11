@@ -10,10 +10,12 @@ class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
 
+    protected static ?string $title = 'Listado de Órdenes';
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Crear Orden'),
         ];
     }
 }

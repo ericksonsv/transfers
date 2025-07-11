@@ -40,6 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Grouping\Group as GroupingGroup;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Tables\Columns\DriversColumn;
+use Carbon\Carbon;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Tables\Actions\BulkAction;
 use Livewire\Component;
@@ -49,6 +50,8 @@ class OrderResource extends Resource
     protected static ?string $model = Order::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+    protected static ?string $navigationLabel = 'Ordenes';
 
     public static function form(Form $form): Form
     {
@@ -65,7 +68,8 @@ class OrderResource extends Resource
                         ->searchable()
                         ->preload()
                         ->live()
-                        ->required(),
+                        ->required()
+                        ->label('Compañia'),
                     Forms\Components\Select::make('customer_id')
                         ->options(
                             fn (Get $get): Collection => Customer::query()
@@ -76,7 +80,8 @@ class OrderResource extends Resource
                         )
                         ->searchable()
                         ->label('Customer')
-                        ->required(),
+                        ->required()
+                        ->label('Empleado'),
                 ])->aside()->columns([
                     'sm' => 1,
                     'lg' => 2
@@ -93,22 +98,27 @@ class OrderResource extends Resource
                         ->cloneable()
                         ->collapsible()
                         ->label(false)
-                        ->addActionLabel('Add Service')
+                        ->addActionLabel('Añadir Servicio')
                         ->schema([
                             Hidden::make('user_id')->default(Auth::user()->id),
-                            TextInput::make('client'),
+                            TextInput::make('client')->label('Cliente'),
                             DatePicker::make('pickup_date')
                                 ->native(false)
                                 ->displayFormat('d/m/Y')
-                                ->minDate(now())
+                                ->minDate(Carbon::now()->subDays(1))
                                 ->required()
+                                ->label('Fecha de Recogida')
                                 ->prefixIcon('heroicon-m-calendar')
                                 ->closeOnDateSelection(),
-                            TimePicker::make('pickup_time')->native(true)->prefixIcon('heroicon-m-clock'),
+                            TimePicker::make('pickup_time')
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-clock')
+                                ->label('Hora de Recogida'),
                             TextInput::make('pickup_place')
                                 ->required()
                                 ->live()
-                                ->autocomplete('off') 
+                                ->label('Lugar de Recogida')
+                                ->autocomplete('off')
                                 ->datalist(function (?string $state) {
                                     $options =[];
                                     if($state != null and Str::length($state) >= 2) {
@@ -117,12 +127,13 @@ class OrderResource extends Resource
                                             ->pluck('destiny')
                                             ->toarray();
                                     }
-                                    return $options; 
+                                    return $options;
                                 }),
                             TextInput::make('dropoff_place')
                                 ->required()
                                 ->live()
-                                ->autocomplete('off') 
+                                ->label('Lugar de Entrega')
+                                ->autocomplete('off')
                                 ->datalist(function (?string $state) {
                                     $options =[];
                                     if($state != null and Str::length($state) >= 2) {
@@ -131,15 +142,28 @@ class OrderResource extends Resource
                                             ->pluck('destiny')
                                             ->toarray();
                                     }
-                                    return $options; 
+                                    return $options;
                                 }),
-                            TextInput::make('flight_number'),
-                            TimePicker::make('flight_time')->native(true)->prefixIcon('heroicon-m-clock'),
-                            TextInput::make('passengers')->numeric()->required(),
-                            TextInput::make('amount')->prefixIcon('heroicon-m-currency-dollar')->numeric()->minValue(0)->nullable(),
+                            TextInput::make('flight_number')
+                                ->label('Número de Vuelo'),
+                            TimePicker::make('flight_time')
+                                ->native(false)
+                                ->label('Hora de Vuelo')
+                                ->prefixIcon('heroicon-m-clock'),
+                            TextInput::make('passengers')
+                                ->numeric()
+                                ->label('Pasajeros')
+                                ->required(),
+                            TextInput::make('amount')
+                                ->prefixIcon('heroicon-m-currency-dollar')
+                                ->numeric()
+                                ->label('Monto')
+                                ->minValue(0)
+                                ->nullable(),
                             Select::make('service_currency_id')
                                 ->relationship('serviceCurrency', 'currency')
                                 ->searchable()
+                                ->label('Moneda')
                                 ->preload()
                                 ->createOptionForm([
                                     TextInput::make('currency')
@@ -150,6 +174,7 @@ class OrderResource extends Resource
                             Select::make('service_type_id')
                                 ->relationship('serviceType', 'type')
                                 ->searchable()
+                                ->label('Tipo de Servicio')
                                 ->preload()
                                 ->createOptionForm([
                                     Group::make()->schema([
@@ -163,6 +188,7 @@ class OrderResource extends Resource
                                 ->relationship('serviceStatus', 'status')
                                 ->searchable()
                                 ->preload()
+                                ->label('Estado del Servicio')
                                 ->createOptionForm([
                                     Group::make()->schema([
                                         TextInput::make('status')
@@ -172,14 +198,15 @@ class OrderResource extends Resource
                             Select::make('drivers')
                                 ->relationship(
                                     name: 'drivers',
-                                    modifyQueryUsing: fn (Builder $query) => $query->where('is_active', true)
+                                    modifyQueryUsing: fn (Builder $query) => $query->orderBy('first_name','asc')->where('is_active', true)
                                 )
                                 ->getOptionLabelFromRecordUsing(fn (Driver $record) => "{$record->first_name} {$record->last_name} {$record->file}")
                                 ->preload()
+                                ->label('Choferes')
                                 ->searchable()
-                                ->multiple()
-                                ->columnSpanFull(),
-                            RichEditor::make('note')->columnSpanFull()
+                                ->multiple(),
+                            TextInput::make('shift')->label('Turno'),
+                            Textarea::make('note')->columnSpanFull()->label('Nota')
                         ])
                 ])->aside()
             ]);
@@ -190,7 +217,7 @@ class OrderResource extends Resource
         return $table
             ->query(Service::query())
             ->modifyQueryUsing(function(Builder $query) {
-                $data = $query->find(2)->with([
+                $data = $query->with([
                     'drivers' => ['phones','mails'],
                     'order' => [
                         'company' => ['phones','mails'],
@@ -201,20 +228,20 @@ class OrderResource extends Resource
             })
             ->columns([
                 TextColumn::make('id'),
-                TextColumn::make('pickup_date')->searchable(),
-                TextColumn::make('pickup_time')->searchable(),
+                TextColumn::make('pickup_date')->label('Fecha recogida')->searchable(),
+                TextColumn::make('pickup_time')->label('Hora recogida')->searchable(),
                 TextColumn::make('pickup_place')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('dropoff_place')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('flight_number')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('flight_time')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('passengers')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('amount')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                DriversColumn::make('drivers')->searchable(),
+                DriversColumn::make('drivers')->label('Choferes')->searchable(),
                 TextColumn::make('currency')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('note')->html()->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('serviceStatus.status')
-                    ->label('Status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'CANCELADO' => 'danger',
