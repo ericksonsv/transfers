@@ -1,0 +1,3 @@
+<div>
+    {{ $record->note }}
+</div>
