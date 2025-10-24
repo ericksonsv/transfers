@@ -1,5 +1,5 @@
 <div>
-    
+
     <header class="mb-6">
         <table class="w-full">
             <tr>

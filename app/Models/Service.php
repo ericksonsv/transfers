@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
 {
     use SoftDeletes;
-    
+    use LogsActivity;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -32,6 +35,8 @@ class Service extends Model
         'service_type_id',
         'service_status_id',
         'note',
+        'shiftz',
+        'trailer',
     ];
 
     public function order(): BelongsTo
@@ -57,5 +62,11 @@ class Service extends Model
     public function drivers(): BelongsToMany
     {
         return $this->belongsToMany(Driver::class)->withTimestamps();;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logAll();
     }
 }

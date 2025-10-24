@@ -13,11 +13,11 @@
                     </div>
                 </td>
                 <td class="text-right align-top">
-                    <p>{{ trans('Date') }}: {{ now()->toFormattedDateString() }}</p>
-                    <p class="font-bold text-2xl uppercase">{{ trans('Order') }} #{{ $record->id }}</p>
+                    <p>{{ trans('Fecha') }}: {{ now()->toFormattedDateString() }}</p>
+                    <p class="font-bold text-2xl uppercase">{{ trans('Orden') }} #{{ $record->id }}</p>
                     @if ($record->drivers()->exists())
                         <div class="flex justify-end gap-2">
-                            <p class="font-bold">{{ trans('Driver') }}:</p>
+                            <p class="font-bold">{{ trans('Chofer') }}:</p>
                             <div class="text-left">
                                 @foreach ($record->drivers as $driver)
                                     <p>- {{ $driver->full_name }}</p>
@@ -25,7 +25,7 @@
                             </div>
                         </div>
                     @else
-                        <p><span class="font-bold">{{ trans('Driver') }}</span>: {{ trans('Not Assigned') }}</p>
+                        <p><span class="font-bold">{{ trans('Chofer') }}</span>: {{ trans('Not Assigned') }}</p>
                     @endif
                 </td>
             </tr>
@@ -35,7 +35,7 @@
     <table class="w-full mb-6">
         <tr>
             <td>
-                <p class="font-bold text-xl text-center uppercase">{{ trans('Order Service Information') }}</p>
+                <p class="font-bold text-xl text-center uppercase">{{ trans('Información Order Servicio') }}</p>
             </td>
         </tr>
     </table>
@@ -43,26 +43,32 @@
     <table class="text-sm mb-4">
         <tbody>
             <tr>
-                <td class="px-2 text-right font-bold">{{ trans('Client') }}:</td>
+                <td class="px-2 text-right font-bold">{{ trans('Cliente') }}:</td>
                 <td class="px-2">{{ $record->client }}</td>
             </tr>
             @if ($record->order->company)
                 <tr>
-                    <td class="px-2 text-right font-bold">{{ trans('Company') }}:</td>
+                    <td class="px-2 text-right font-bold">{{ trans('Compañía') }}:</td>
                     <td class="px-2">{{ $record->order->company->business_name }}</td>
                 </tr>
             @endif
             <tr>
-                <td class="px-2 text-right font-bold">{{ trans('Passengers') }}:</td>
+                <td class="px-2 text-right font-bold">{{ trans('Pasajeros') }}:</td>
                 <td class="px-2">{{ $record->passengers }}</td>
             </tr>
+            @if (!empty($record->shiftz))
+                <tr>
+                    <td class="px-2 text-right font-bold">{{ trans('Turno') }}:</td>
+                    <td class="px-2">{{ $record->shiftz }}</td>
+                </tr>
+            @endif
             @if ($record->flight && $record->flight_time)
                 <tr>
-                    <td class="px-2 text-right font-bold">{{ trans('Flight') }}:</td>
+                    <td class="px-2 text-right font-bold">{{ trans('Vuelo') }}:</td>
                     <td class="px-2">{{ $record->flight }}</td>
                 </tr>
                 <tr>
-                    <td class="px-2 text-right font-bold">{{ trans('Flight Time') }}:</td>
+                    <td class="px-2 text-right font-bold">{{ trans('Hora Vuelo') }}:</td>
                     <td class="px-2">{{ displayTime($record->flight_time) }}</td>
                 </tr>
             @endif
@@ -72,15 +78,15 @@
     <table class="w-full text-sm">
         <tbody>
             <tr>
-                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Date') }}:</td>
+                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Fecha') }}:</td>
                 <td class="border px-2 py-1">{{ $record->pickup_date }}</td>
-                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Time') }}:</td>
+                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Hora') }}:</td>
                 <td class="border px-2 py-1">{{ $record->pickup_time }}</td>
             </tr>
             <tr>
-                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Pickup') }}:</td>
+                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Recogida') }}:</td>
                 <td class="border px-2 py-1">{{ $record->pickup_place }}</td>
-                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Dropoff') }}:</td>
+                <td class="border px-2 py-1 text-right font-bold w-1">{{ trans('Destino') }}:</td>
                 <td class="border px-2 py-1">{{ $record->dropoff_place }}</td>
             </tr>
         </tbody>
@@ -89,12 +95,12 @@
     @if ($record->note)
         <table class="w-full mt-6 text-sm">
             <tr>
-                <td colspan="6" class="border px-2 py-1 font-bold">{{ trans('Note') }}</td>
+                <td colspan="6" class="border px-2 py-1 font-bold">{{ trans('Nota') }}</td>
             </tr>
             <tr>
                 <td colspan="6" class="border px-2 py-1">{!! $record->note !!}</td>
             </tr>
         </table>
     @endif
-    
+
 </div>

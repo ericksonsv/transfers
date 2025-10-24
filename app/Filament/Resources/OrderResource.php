@@ -53,10 +53,13 @@ class OrderResource extends Resource
 
     protected static ?string $navigationLabel = 'Ordenes';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+
                 Section::make('Company Information')->schema([
                     Forms\Components\Select::make('company_id')
                         // ->relationship('company', 'tradename')
@@ -86,6 +89,7 @@ class OrderResource extends Resource
                     'sm' => 1,
                     'lg' => 2
                 ]),
+
                 Section::make('Services Details')->schema([
                     Repeater::make('services')
                         ->relationship()
@@ -205,7 +209,7 @@ class OrderResource extends Resource
                                 ->label('Choferes')
                                 ->searchable()
                                 ->multiple(),
-                            TextInput::make('shift')->label('Turno'),
+                            TextInput::make('shiftz')->label('Turno'),
                             Textarea::make('note')->columnSpanFull()->label('Nota')
                         ])
                 ])->aside()
