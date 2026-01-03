@@ -22,6 +22,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use App\Filament\Resources\ServiceResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ServiceResource\RelationManagers;
+use Filament\Tables\Columns\ToggleColumn;
 
 class ServiceResource extends Resource
 {
@@ -93,6 +94,8 @@ class ServiceResource extends Resource
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('pickup_date')->sortable()->label('Fecha')->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('pickup_time')->sortable()->label('Hora')->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('passengers')->sortable()->label('Capacidad')->toggleable(isToggledHiddenByDefault: true),
+                ToggleColumn::make('trailer')->sortable()->label('Carreton')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('drivers.first_name')
                     ->getStateUsing(function ($record) {
                         if ($record->drivers->isEmpty()) {
@@ -127,6 +130,19 @@ class ServiceResource extends Resource
                     ->multiple()
                     ->preload()
                     ->searchable(),
+                Filter::make('fecha_exacta')
+                ->label('Fecha')
+                ->form([
+                    Forms\Components\DatePicker::make('date')
+                        ->label('Fecha')
+                ])
+                ->query(function ($query, array $data) {
+                    if (! $data['date']) {
+                        return $query;
+                    }
+
+                    return $query->whereDate('pickup_date', $data['date']);
+                }),
                 Filter::make('Fecha Servicio')
                     ->form([
                         DatePicker::make('pickup_date_from')->label('Fecha Desde'),
@@ -194,7 +210,8 @@ class ServiceResource extends Resource
                     ->iconButton()
                     ->icon('heroicon-o-clock')
                     ->color('primary')
-                    ->tooltip(__('Logs')),
+                    ->tooltip(__('Logs'))
+                    ->visible(fn (): bool => Auth::user()->can('log_service', Service::class)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

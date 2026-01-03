@@ -37,6 +37,7 @@ class Service extends Model
         'note',
         'shiftz',
         'trailer',
+        'trailer',
     ];
 
     public function order(): BelongsTo

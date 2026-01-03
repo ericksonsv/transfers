@@ -16,8 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Concerns\InteractsWithTable;
 use App\Filament\Exports\OperationReportExporter;
-
-
+use Filament\Forms\Components\TextInput;
 
 class OperationReport extends Page implements HasTable
 {
@@ -58,8 +57,10 @@ class OperationReport extends Page implements HasTable
                 TextColumn::make('passengers')->sortable()->toggleable(isToggledHiddenByDefault: false)->label('Pasajeros'),
                 TextColumn::make('order.company.business_name')->sortable()->toggleable(isToggledHiddenByDefault: false)->label('Compañía'),
                 TextColumn::make('order.customer.full_name')->sortable()->toggleable(isToggledHiddenByDefault: false)->label('Cliente'),
-                // TextColumn::make('note')->wrap()
+                TextColumn::make('shiftz')->label('Turno'),
+                TextColumn::make('client')->label('Pasajero'),
                 TextColumn::make('note')
+                    ->label('Nota')
                     ->formatStateUsing(function (Service $record){
                         if (empty($record->note)) {
                             return 'Sin Nota';
@@ -78,6 +79,47 @@ class OperationReport extends Page implements HasTable
                     )
             ])
             ->filters([
+
+                Filter::make('order.company.business_name')
+                ->label('Nombre de Empresa')
+                ->form([
+                    TextInput::make('business_name')
+                        ->label('Compañía'),
+                ])
+                ->query(function ($query, array $data) {
+                    if (! $data['business_name']) {
+                        return $query;
+                    }
+
+                    return $query->whereHas('order.company', function (Builder $q) use ($data) {
+                        $q->where('business_name', 'like', '%' . $data['business_name'] . '%');
+                    });
+                }),
+
+                Filter::make('shiftz')
+                ->form([
+                    TextInput::make('shiftz')->label('Turno'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['shiftz'],
+                            fn (Builder $query): Builder => $query->where('shiftz', 'like', '%'.$data['shiftz'].'%'),
+                        );
+                }),
+
+                Filter::make('client')
+                ->form([
+                    TextInput::make('client')->label('Pasajero'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['client'],
+                            fn (Builder $query): Builder => $query->where('client', 'like', '%'.$data['client'].'%'),
+                        );
+                }),
+
                 Filter::make('Fecha Servicio')
                     ->form([
                         DatePicker::make('pickup_date_from')->label('Fecha Desde'),

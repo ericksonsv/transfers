@@ -22,6 +22,7 @@ use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\ColorPicker;
 use App\Filament\Resources\ServiceResource;
+use Filament\Forms\Components\Toggle;
 
 class EditService extends EditRecord
 {
@@ -46,7 +47,6 @@ class EditService extends EditRecord
                 DatePicker::make('pickup_date')
                     ->native(false)
                     ->displayFormat('d/m/Y')
-                    ->minDate(Carbon::now()->subDays(1))
                     ->required()
                     ->label('Fecha de Recogida')
                     ->prefixIcon('heroicon-m-calendar')
@@ -147,6 +147,7 @@ class EditService extends EditRecord
                     ->searchable()
                     ->multiple(),
                 TextInput::make('shiftz')->label('Turno'),
+                Toggle::make('trailer')->label('Carreton'),
                 Textarea::make('note')->columnSpanFull()->label('Nota')
             ])->columns([ 'sm' => 1, 'lg' => 3])
         ]);

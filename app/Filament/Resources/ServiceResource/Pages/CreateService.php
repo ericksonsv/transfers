@@ -26,6 +26,8 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\ServiceResource;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class CreateService extends CreateRecord
@@ -193,6 +195,7 @@ class CreateService extends CreateRecord
                             ->searchable()
                             ->multiple(),
                         TextInput::make('shiftz')->label('Turno'),
+                        Toggle::make('trailer')->label('Carreton'),
                         Textarea::make('note')->columnSpanFull()->label('Nota')
                     ])
             ])->aside()
